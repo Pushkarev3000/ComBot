@@ -37,6 +37,7 @@ public final class ComBot extends TelegramLongPollingCommandBot {
         register(new TestCommand4("test4","api"));
         //register(new SettingsCommand("settings", "Мои настройки"));
         //userSettings = new HashMap<>();
+        System.out.println("проверяю гит");
     }
 
     @Override
