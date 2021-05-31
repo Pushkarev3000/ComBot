@@ -19,7 +19,7 @@ public class HelpCommandE extends ServiceCommand {
                 this.getCommandIdentifier()));
         sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), userName,
                 "Я бот, который поможет сдать Дане диплом\n\n" +
-                        "❗*Список команд*\n/test - попробовать хакнуть Тинькофф\n/help - помощь\n\n" +
+                        "❗*Список команд*\n/price + *тикер* - узнать цену акции\n/help - помощь\n\n" +
                         "Желаю удачи\uD83D\uDE42");
         log.debug(String.format("Пользователь %s. Завершено выполнение команды %s", userName,
                 this.getCommandIdentifier()));
