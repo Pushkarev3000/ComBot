@@ -24,4 +24,5 @@ public class TestCommand3 extends ServiceCommand {
         BigDecimal balance = bankApi.getAccountBalance((SandboxOpenApi) api, brokerAccId);
         sendAnswer(absSender, chat.getId(),this.getCommandIdentifier(),userName, balance.toPlainString());
     }
+    //проверяю гит
 }
