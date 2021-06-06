@@ -2,15 +2,22 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import ru.tinkoff.invest.openapi.OpenApi;
 import ru.tinkoff.invest.openapi.SandboxOpenApi;
 import ru.tinkoff.invest.openapi.models.Currency;
 import ru.tinkoff.invest.openapi.models.market.CandleInterval;
+import ru.tinkoff.invest.openapi.models.market.Instrument;
+import ru.tinkoff.invest.openapi.models.orders.MarketOrder;
+import ru.tinkoff.invest.openapi.models.orders.Operation;
+import ru.tinkoff.invest.openapi.models.portfolio.Portfolio;
 import ru.tinkoff.invest.openapi.models.sandbox.CurrencyBalance;
 import ru.tinkoff.invest.openapi.models.user.BrokerAccountType;
 import ru.tinkoff.invest.openapi.okhttp.OkHttpOpenApiFactory;
@@ -20,7 +27,6 @@ public class BankApi {
     private static final Map<String, String> getenv = System.getenv();
 
     public OpenApi connect() throws ExecutionException, InterruptedException {
-        //String token = "t.z-ouhGdbTJ4KfeFAbCULPSa-0Dbpkb2x7SpzXUzwPlv1BDkg2smMPRZRXqy1Z7ZcPzNQOtzGvGg7OcwIeHhMiw";
         OkHttpOpenApiFactory factory = new OkHttpOpenApiFactory(getenv.get("BANK_TOKEN"), logger);
 
 
@@ -30,9 +36,6 @@ public class BankApi {
         } else {
             return factory.createOpenApiClient(Executors.newCachedThreadPool());
         }
-
-        //((SandboxOpenApi) api).getSandboxContext().performRegistration(new SandboxRegisterRequest()).join();
-        //((SandboxOpenApi) api).getSandboxContext().performRegistration(BrokerAccountType.Tinkoff).join();
 
 
         //CompletableFuture<Portfolio> brokerID;
@@ -51,21 +54,9 @@ public class BankApi {
             System.out.println(element.ticker +" "+ element.lots +" "+ element.balance);
         });*/
 
-        //свечи
     }
 
-    /*public void getAccuranceStock(OpenApi api) {
-        var as = api.getMarketContext().getMarketCandles("BBG000BGXZB5",
-                OffsetDateTime.of(LocalDateTime.from(LocalDateTime.now().minusDays(5)), ZoneOffset.UTC),
-                OffsetDateTime.of(LocalDateTime.from(LocalDateTime.now()), ZoneOffset.UTC),
-                CandleInterval.DAY).join().get().candles.forEach(element -> {
-            System.out.println(element.closePrice);
-        });
-        //return as;
-    }*/
-
     public String getBrokerAccountId(OpenApi api) {
-        //api.getSandboxContext().performRegistration(null).join();
         var acc = api.getUserContext().getAccounts().join();
         String brokerAccIdVar = acc.accounts.stream()
                 .filter(brokerAccount -> brokerAccount.brokerAccountType == BrokerAccountType.Tinkoff)
@@ -78,6 +69,12 @@ public class BankApi {
         api.getSandboxContext().setCurrencyBalance(new CurrencyBalance(Currency.USD, balance), brokerAccId);
     }
 
+    public List<Portfolio.PortfolioPosition> showPortfolio (OpenApi api) throws ExecutionException, InterruptedException {
+        var portfolioStats=  api.getPortfolioContext().getPortfolio(getBrokerAccountId(api)).
+                get().positions.stream().collect(Collectors.toList());
+        return portfolioStats;
+    }
+
     public BigDecimal getAccountBalance(OpenApi api, String brokerAccId) {
         var portfolioCurrencies = api.getPortfolioContext().getPortfolioCurrencies(brokerAccId).join();
         var balance = portfolioCurrencies.currencies.stream()
@@ -85,18 +82,35 @@ public class BankApi {
                 .findFirst().get().balance;
         System.out.println(balance);
         return balance;
-
     }
 
-    public BigDecimal getStocksCost (OpenApi api, String ticker) throws ExecutionException, InterruptedException {
+    public BigDecimal getStocksCost(OpenApi api, String ticker) throws ExecutionException, InterruptedException {
         var name = api.getMarketContext().searchMarketInstrumentsByTicker(ticker).join();
         var cost = api.getMarketContext().getMarketCandles(
                 name.instruments.get(0).figi,
-                OffsetDateTime.of(LocalDateTime.from(LocalDateTime.now().minusDays(5)), ZoneOffset.UTC),
+                OffsetDateTime.of(LocalDateTime.from(LocalDateTime.now().minusDays(1)), ZoneOffset.UTC),
                 OffsetDateTime.of(LocalDateTime.from(LocalDateTime.now()), ZoneOffset.UTC),
-                CandleInterval.DAY).join().get().candles.get(0).highestPrice;
-                //forEach(element -> { System.out.println(element.figi + " " + element.name + " " + element.currency); });
+                CandleInterval.HOUR).join().get().candles.get(0).closePrice;
         System.out.println(cost);
         return cost;
     }
+
+    public List<Instrument> streamStocks(OpenApi api, String stockName) throws ExecutionException, InterruptedException {
+        var stream = api.getMarketContext().getMarketStocks().join().
+                instruments.stream().filter(stockSearch -> stockSearch.name.toLowerCase(Locale.ROOT).
+                contains(stockName.toLowerCase(Locale.ROOT))).collect(Collectors.toList());
+        //stream().filter(stockSearch -> stockSearch.name.contains(stockName)).;
+        return stream;
+    }
+
+    public void buyStock(OpenApi api, String figi, Integer lot) throws ExecutionException, InterruptedException {
+        api.getOrdersContext().placeMarketOrder(figi, new MarketOrder(lot, Operation.Buy),
+                api.getUserContext().getAccounts().get().accounts.get(0).brokerAccountId).get();
+    }
+    public void sellStock(OpenApi api, String figi, Integer lot) throws ExecutionException, InterruptedException {
+        api.getOrdersContext().placeMarketOrder(figi, new MarketOrder(lot, Operation.Sell),
+                api.getUserContext().getAccounts().get().accounts.get(0).brokerAccountId).get();
+    }
 }
+
+
