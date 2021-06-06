@@ -5,14 +5,12 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.reactivestreams.Subscriber;
-import org.telegram.telegrambots.meta.bots.AbsSender;
+
 import ru.tinkoff.invest.openapi.OpenApi;
 import ru.tinkoff.invest.openapi.SandboxOpenApi;
 import ru.tinkoff.invest.openapi.models.Currency;
@@ -22,7 +20,6 @@ import ru.tinkoff.invest.openapi.models.orders.MarketOrder;
 import ru.tinkoff.invest.openapi.models.orders.Operation;
 import ru.tinkoff.invest.openapi.models.portfolio.Portfolio;
 import ru.tinkoff.invest.openapi.models.sandbox.CurrencyBalance;
-import ru.tinkoff.invest.openapi.models.streaming.StreamingRequest;
 import ru.tinkoff.invest.openapi.models.user.BrokerAccountType;
 import ru.tinkoff.invest.openapi.okhttp.OkHttpOpenApiFactory;
 
@@ -78,22 +75,21 @@ public class BankApi {
         return balance;
     }
 
-    public BigDecimal getStocksCost(String ticker) throws ExecutionException, InterruptedException {
+    public BigDecimal getStocksCost(String ticker) {
         var name = Api.getMarketContext().searchMarketInstrumentsByTicker(ticker).join();
         var cost = Api.getMarketContext().getMarketCandles(
                 name.instruments.get(0).figi,
-                OffsetDateTime.of(LocalDateTime.from(LocalDateTime.now().minusDays(1)), ZoneOffset.UTC),
+                OffsetDateTime.of(LocalDateTime.from(LocalDateTime.now().minusDays(3)), ZoneOffset.UTC),
                 OffsetDateTime.of(LocalDateTime.from(LocalDateTime.now()), ZoneOffset.UTC),
                 CandleInterval.HOUR).join().get().candles.get(0).closePrice;
         System.out.println(cost);
         return cost;
     }
 
-    public List<Instrument> streamStocks(String stockName) throws ExecutionException, InterruptedException {
+    public List<Instrument> streamStocks(String stockName) {
         var stream = Api.getMarketContext().getMarketStocks().join().
                 instruments.stream().filter(stockSearch -> stockSearch.name.toLowerCase(Locale.ROOT).
                 contains(stockName.toLowerCase(Locale.ROOT))).collect(Collectors.toList());
-        //stream().filter(stockSearch -> stockSearch.name.contains(stockName)).;
         return stream;
     }
 
@@ -107,15 +103,7 @@ public class BankApi {
                 Api.getUserContext().getAccounts().get().accounts.get(0).brokerAccountId).get();
     }
 
-    public void stockSubscribe(String figi, Subscriber listener) {
-        var streamingContext = Api.getStreamingContext();
-        streamingContext.getEventPublisher().subscribe(listener);
-        streamingContext.sendRequest(StreamingRequest.subscribeCandle(figi, CandleInterval.ONE_MIN));
-    }
-
-    public void stockUnsubscribe(String figi) {
-        Api.getStreamingContext().sendRequest(StreamingRequest.unsubscribeCandle(figi, CandleInterval.ONE_MIN));
-    }
 }
+
 
 

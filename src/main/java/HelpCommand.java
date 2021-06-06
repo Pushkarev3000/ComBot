@@ -5,9 +5,9 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
 @Slf4j
-public class HelpCommandE extends ServiceCommand {
+public class HelpCommand extends ServiceCommand {
 
-    public HelpCommandE(String identifier, String description) {
+    public HelpCommand(String identifier, String description) {
         super(identifier, description);
     }
 

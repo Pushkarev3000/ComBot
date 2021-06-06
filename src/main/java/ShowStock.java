@@ -6,9 +6,9 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 import ru.tinkoff.invest.openapi.SandboxOpenApi;
 
-public class StockStream extends ServiceCommand {
+public class ShowStock extends ServiceCommand {
 
-    public StockStream(String identifier, String description) {
+    public ShowStock(String identifier, String description) {
         super(identifier, description);
     }
 
