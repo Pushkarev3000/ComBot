@@ -10,6 +10,8 @@ import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.reactivestreams.Subscriber;
+import org.telegram.telegrambots.meta.bots.AbsSender;
 import ru.tinkoff.invest.openapi.OpenApi;
 import ru.tinkoff.invest.openapi.SandboxOpenApi;
 import ru.tinkoff.invest.openapi.models.Currency;
@@ -19,6 +21,7 @@ import ru.tinkoff.invest.openapi.models.orders.MarketOrder;
 import ru.tinkoff.invest.openapi.models.orders.Operation;
 import ru.tinkoff.invest.openapi.models.portfolio.Portfolio;
 import ru.tinkoff.invest.openapi.models.sandbox.CurrencyBalance;
+import ru.tinkoff.invest.openapi.models.streaming.StreamingRequest;
 import ru.tinkoff.invest.openapi.models.user.BrokerAccountType;
 import ru.tinkoff.invest.openapi.okhttp.OkHttpOpenApiFactory;
 
@@ -110,6 +113,12 @@ public class BankApi {
     public void sellStock(OpenApi api, String figi, Integer lot) throws ExecutionException, InterruptedException {
         api.getOrdersContext().placeMarketOrder(figi, new MarketOrder(lot, Operation.Sell),
                 api.getUserContext().getAccounts().get().accounts.get(0).brokerAccountId).get();
+    }
+
+    public void stockSubscribe(OpenApi api, String figi, Subscriber listener) {
+        var streamingContext = api.getStreamingContext();
+        streamingContext.getEventPublisher().subscribe(listener);
+        streamingContext.sendRequest(StreamingRequest.subscribeCandle(figi, CandleInterval.ONE_MIN));
     }
 }
 
