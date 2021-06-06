@@ -1,17 +1,24 @@
 import lombok.SneakyThrows;
+import org.reactivestreams.Subscriber;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
+import ru.tinkoff.invest.openapi.models.market.Candle;
 
 import java.util.concurrent.Executors;
+import java.util.concurrent.Flow;
 import java.util.logging.Logger;
 
 public class StockSubscribe extends ServiceCommand {
 
     static Logger logger = Logger.getLogger(StockSubscribe.class.toString());
+    static CandleApiSubscriber Listener;
 
     public StockSubscribe(String identifier, String description) {
         super(identifier, description);
+        if (Listener == null) {
+            Listener = new CandleApiSubscriber(logger, Executors.newSingleThreadExecutor());
+        }
     }
 
     @SneakyThrows
@@ -22,7 +29,11 @@ public class StockSubscribe extends ServiceCommand {
         var api = bankApi.connect();
         String stockFigi = params[0];
 
-        var listener = new CandleApiSubscriber(logger, Executors.newSingleThreadExecutor(), absSender, chat.getId());
-        bankApi.stockSubscribe(api, stockFigi, listener);
+        if (Listener.getSender() == null) {
+            Listener.setSender(absSender);
+            Listener.setChatId(chat.getId());
+        }
+        //var listener = new CandleApiSubscriber(logger, Executors.newSingleThreadExecutor(), absSender, chat.getId());
+        bankApi.stockSubscribe(stockFigi, Listener);
     }
 }

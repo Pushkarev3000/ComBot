@@ -3,9 +3,9 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-public class RegistrateBrokerAccount extends ServiceCommand {
+public class RegisterBrokerAccount extends ServiceCommand {
 
-    public RegistrateBrokerAccount(String identifier, String description) {
+    public RegisterBrokerAccount(String identifier, String description) {
         super(identifier, description);
     }
 
@@ -15,7 +15,7 @@ public class RegistrateBrokerAccount extends ServiceCommand {
         String userName = user.getUserName();
         BankApi bankApi = new BankApi();
         var api = bankApi.connect();
-        String brokerAccountId = bankApi.getBrokerAccountId(api);
+        String brokerAccountId = bankApi.getBrokerAccountId();
         sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), userName, brokerAccountId);
     }
 }

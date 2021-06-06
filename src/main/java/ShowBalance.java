@@ -22,8 +22,8 @@ public class ShowBalance extends ServiceCommand {
             String userName = user.getUserName();
             BankApi bankApi = new BankApi();
             var api = bankApi.connect();
-            String brokerAccId = bankApi.getBrokerAccountId(api);
-            BigDecimal balance = bankApi.getAccountBalance((SandboxOpenApi) api, brokerAccId);
+            String brokerAccId = bankApi.getBrokerAccountId();
+            BigDecimal balance = bankApi.getAccountBalance(brokerAccId);
             sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), userName, balance.toPlainString());
         } catch (Exception e){
             String userName = user.getUserName();

@@ -19,7 +19,7 @@ public class StockPrice extends ServiceCommand {
             BankApi bankApi = new BankApi();
             var api = bankApi.connect();
             String ticker = params[0];
-            var cost = bankApi.getStocksCost((SandboxOpenApi) api, ticker);
+            var cost = bankApi.getStocksCost(ticker);
             String costOutPut = cost.toString();
             sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), userName, costOutPut);
         } catch (Exception e){

@@ -22,8 +22,8 @@ public class ShowPortfolio extends ServiceCommand {
             String userName = user.getUserName();
             BankApi bankApi = new BankApi();
             var api = bankApi.connect();
-            String brokerAccId = bankApi.getBrokerAccountId(api);
-            var portfolio = bankApi.showPortfolio((SandboxOpenApi) api);
+            String brokerAccId = bankApi.getBrokerAccountId();
+            var portfolio = bankApi.showPortfolio();
             String portfolioOut = portfolio.toString();
             sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), userName, portfolioOut);
         } catch (Exception e){

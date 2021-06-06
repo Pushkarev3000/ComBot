@@ -17,6 +17,11 @@ class CandleApiSubscriber extends AsyncSubscriber<StreamingEvent.Candle> {
     private AbsSender chatSender;
     private Long chatId;
 
+    CandleApiSubscriber(@NotNull final Logger logger, @NotNull final Executor executor) {
+        super(executor);
+        this.logger = logger;
+    }
+
     CandleApiSubscriber(@NotNull final Logger logger, @NotNull final Executor executor, AbsSender absSender, Long chatId) {
         super(executor);
         this.logger = logger;
@@ -24,14 +29,37 @@ class CandleApiSubscriber extends AsyncSubscriber<StreamingEvent.Candle> {
         this.chatId = chatId;
     }
 
+    public AbsSender getSender() {
+        return this.chatSender;
+    }
+
+    public void setSender(AbsSender sender) {
+        this.chatSender = sender;
+    }
+
+    public void setChatId(Long chatId) {
+        this.chatId = chatId;
+    }
+
     @Override
     protected boolean whenNext(final StreamingEvent.Candle event) {
         logger.info("Пришло новое событие из Streaming API\n" + event);
 
+        if (this.chatSender == null) {
+            return false;
+        }
         String messageText = String.format("UPDATE\n%s - %s", event.getFigi(), event.getHighestPrice());
         sendMessage(this.chatSender, this.chatId, messageText);
 
         return true;
+    }
+
+    @Override
+    protected void whenError(Throwable error) {
+        //logger.info("Пришло новое событие из Streaming API\n");
+
+        String messageText = String.format("ERROR\n%s\n> %s", error.getMessage(), error.getStackTrace());
+        sendMessage(this.chatSender, this.chatId, messageText);
     }
 
     private void sendMessage(AbsSender absSender, Long chatId, String text) {

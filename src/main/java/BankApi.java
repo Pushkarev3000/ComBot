@@ -5,6 +5,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
@@ -29,38 +30,28 @@ public class BankApi {
     static Logger logger = Logger.getLogger(BankApi.class.toString());
     private static final Map<String, String> getenv = System.getenv();
 
-    public OpenApi connect() throws ExecutionException, InterruptedException {
-        OkHttpOpenApiFactory factory = new OkHttpOpenApiFactory(getenv.get("BANK_TOKEN"), logger);
+    private static OpenApi Api;
+    private static boolean IsConnected;
 
-
-        boolean sandboxMode = true;
-        if (sandboxMode) {
-            return factory.createSandboxOpenApiClient(Executors.newCachedThreadPool());
-        } else {
-            return factory.createOpenApiClient(Executors.newCachedThreadPool());
+    public boolean connect() throws ExecutionException, InterruptedException {
+        if (IsConnected) {
+            return IsConnected;
         }
 
+        OkHttpOpenApiFactory factory = new OkHttpOpenApiFactory(getenv.get("BANK_TOKEN"), logger);
+        boolean sandboxMode = true;
+        IsConnected = true;
+        if (sandboxMode) {
+            Api = factory.createSandboxOpenApiClient(Executors.newCachedThreadPool());
+        } else {
+            Api = factory.createOpenApiClient(Executors.newCachedThreadPool());
+        }
 
-        //CompletableFuture<Portfolio> brokerID;
-        //System.out.println(brokerID);
-
-        //портфель
-        /*api.getUserContext().getAccounts().join({System.out.println(BrokerAccount);});
-        api.getMarketContext().getMarketStocks().get().instruments.forEach(element ->{
-            System.out.println(element.figi +" "+ element.name +" "+ element.currency);
-        });*/
-
-        //покупка
-        /*api.getOrdersContext().placeMarketOrder("BBG000BGXZB5",new MarketOrder(1, Operation.Buy),
-                api.getUserContext().getAccounts().get().accounts.get(0).brokerAccountId).get();
-        api.getPortfolioContext().getPortfolio(api.getUserContext().getAccounts().get().accounts.get(0).brokerAccountId).get().positions.forEach(element ->{
-            System.out.println(element.ticker +" "+ element.lots +" "+ element.balance);
-        });*/
-
+        return IsConnected;
     }
 
-    public String getBrokerAccountId(OpenApi api) {
-        var acc = api.getUserContext().getAccounts().join();
+    public String getBrokerAccountId() {
+        var acc = Api.getUserContext().getAccounts().join();
         String brokerAccIdVar = acc.accounts.stream()
                 .filter(brokerAccount -> brokerAccount.brokerAccountType == BrokerAccountType.Tinkoff)
                 .findFirst().get().brokerAccountId;
@@ -68,18 +59,18 @@ public class BankApi {
         return brokerAccIdVar;
     }
 
-    public void setAccountBalance(SandboxOpenApi api, String brokerAccId, BigDecimal balance) {
-        api.getSandboxContext().setCurrencyBalance(new CurrencyBalance(Currency.USD, balance), brokerAccId);
+    public void setAccountBalance(String brokerAccId, BigDecimal balance) {
+        ((SandboxOpenApi)Api).getSandboxContext().setCurrencyBalance(new CurrencyBalance(Currency.USD, balance), brokerAccId);
     }
 
-    public List<Portfolio.PortfolioPosition> showPortfolio (OpenApi api) throws ExecutionException, InterruptedException {
-        var portfolioStats=  api.getPortfolioContext().getPortfolio(getBrokerAccountId(api)).
+    public List<Portfolio.PortfolioPosition> showPortfolio() throws ExecutionException, InterruptedException {
+        var portfolioStats=  Api.getPortfolioContext().getPortfolio(getBrokerAccountId()).
                 get().positions.stream().collect(Collectors.toList());
         return portfolioStats;
     }
 
-    public BigDecimal getAccountBalance(OpenApi api, String brokerAccId) {
-        var portfolioCurrencies = api.getPortfolioContext().getPortfolioCurrencies(brokerAccId).join();
+    public BigDecimal getAccountBalance(String brokerAccId) {
+        var portfolioCurrencies = Api.getPortfolioContext().getPortfolioCurrencies(brokerAccId).join();
         var balance = portfolioCurrencies.currencies.stream()
                 .filter(myCurrency -> myCurrency.currency == Currency.USD)
                 .findFirst().get().balance;
@@ -87,9 +78,9 @@ public class BankApi {
         return balance;
     }
 
-    public BigDecimal getStocksCost(OpenApi api, String ticker) throws ExecutionException, InterruptedException {
-        var name = api.getMarketContext().searchMarketInstrumentsByTicker(ticker).join();
-        var cost = api.getMarketContext().getMarketCandles(
+    public BigDecimal getStocksCost(String ticker) throws ExecutionException, InterruptedException {
+        var name = Api.getMarketContext().searchMarketInstrumentsByTicker(ticker).join();
+        var cost = Api.getMarketContext().getMarketCandles(
                 name.instruments.get(0).figi,
                 OffsetDateTime.of(LocalDateTime.from(LocalDateTime.now().minusDays(1)), ZoneOffset.UTC),
                 OffsetDateTime.of(LocalDateTime.from(LocalDateTime.now()), ZoneOffset.UTC),
@@ -98,27 +89,32 @@ public class BankApi {
         return cost;
     }
 
-    public List<Instrument> streamStocks(OpenApi api, String stockName) throws ExecutionException, InterruptedException {
-        var stream = api.getMarketContext().getMarketStocks().join().
+    public List<Instrument> streamStocks(String stockName) throws ExecutionException, InterruptedException {
+        var stream = Api.getMarketContext().getMarketStocks().join().
                 instruments.stream().filter(stockSearch -> stockSearch.name.toLowerCase(Locale.ROOT).
                 contains(stockName.toLowerCase(Locale.ROOT))).collect(Collectors.toList());
         //stream().filter(stockSearch -> stockSearch.name.contains(stockName)).;
         return stream;
     }
 
-    public void buyStock(OpenApi api, String figi, Integer lot) throws ExecutionException, InterruptedException {
-        api.getOrdersContext().placeMarketOrder(figi, new MarketOrder(lot, Operation.Buy),
-                api.getUserContext().getAccounts().get().accounts.get(0).brokerAccountId).get();
-    }
-    public void sellStock(OpenApi api, String figi, Integer lot) throws ExecutionException, InterruptedException {
-        api.getOrdersContext().placeMarketOrder(figi, new MarketOrder(lot, Operation.Sell),
-                api.getUserContext().getAccounts().get().accounts.get(0).brokerAccountId).get();
+    public void buyStock(String figi, Integer lot) throws ExecutionException, InterruptedException {
+        Api.getOrdersContext().placeMarketOrder(figi, new MarketOrder(lot, Operation.Buy),
+                Api.getUserContext().getAccounts().get().accounts.get(0).brokerAccountId).get();
     }
 
-    public void stockSubscribe(OpenApi api, String figi, Subscriber listener) {
-        var streamingContext = api.getStreamingContext();
+    public void sellStock(String figi, Integer lot) throws ExecutionException, InterruptedException {
+        Api.getOrdersContext().placeMarketOrder(figi, new MarketOrder(lot, Operation.Sell),
+                Api.getUserContext().getAccounts().get().accounts.get(0).brokerAccountId).get();
+    }
+
+    public void stockSubscribe(String figi, Subscriber listener) {
+        var streamingContext = Api.getStreamingContext();
         streamingContext.getEventPublisher().subscribe(listener);
         streamingContext.sendRequest(StreamingRequest.subscribeCandle(figi, CandleInterval.ONE_MIN));
+    }
+
+    public void stockUnsubscribe(String figi) {
+        Api.getStreamingContext().sendRequest(StreamingRequest.unsubscribeCandle(figi, CandleInterval.ONE_MIN));
     }
 }
 
