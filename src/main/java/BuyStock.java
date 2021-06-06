@@ -20,7 +20,7 @@ public class BuyStock extends ServiceCommand {
             var api = bankApi.connect();
             String stockFigi = params[0];
             int stockLot = Integer.parseInt(params[1]);
-            bankApi.buyStock((SandboxOpenApi) api, stockFigi,stockLot);
+            bankApi.buyStock(stockFigi, stockLot);
             sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), userName,
                     "Сделка удалась");
         } catch (Exception e){

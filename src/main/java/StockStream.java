@@ -19,7 +19,7 @@ public class StockStream extends ServiceCommand {
         BankApi bankApi = new BankApi();
         var api = bankApi.connect();
         String stockName = params[0];
-        var stock = bankApi.streamStocks((SandboxOpenApi) api, stockName);
+        var stock = bankApi.streamStocks(stockName);
         String stockOut = stock.toString();
         //sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), userName, stockOut);
         if (stockOut.equals("Optional.empty")) {

@@ -31,7 +31,7 @@ public final class ComBot extends TelegramLongPollingCommandBot {
         //регистрируем команды
         register(new StartCommand("start", "Старт"));
         register(new HelpCommandE("help", "Помощь"));
-        register(new RegistrateBrokerAccount("registrate","Регистраия тестового аккаунта"));
+        register(new RegisterBrokerAccount("register","Регистраия тестового аккаунта"));
         register(new DepositBalance("deposit","Пополнить баланс"));
         register(new ShowBalance("show_balance","Показать баланс аккаунта"));
         register(new StockPrice("price","Цена акции"));
@@ -39,6 +39,8 @@ public final class ComBot extends TelegramLongPollingCommandBot {
         register(new BuyStock("buy","Покупка акций"));
         register(new SellStock("sell","Покупка акций"));
         register(new ShowPortfolio("show_portfolio","Показать портфель"));
+        register(new StockSubscribe("subscribe",""));
+        register(new StockUnsubscribe("unsubscribe", ""));
         //register(new SettingsCommand("settings", "Мои настройки"));
         //userSettings = new HashMap<>();
         System.out.println("патч от 05.06.21");

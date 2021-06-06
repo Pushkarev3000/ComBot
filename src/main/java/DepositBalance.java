@@ -20,9 +20,9 @@ public class DepositBalance extends ServiceCommand {
             String userName = user.getUserName();
             BankApi bankApi = new BankApi();
             var api = bankApi.connect();
-            String brokerAccId = bankApi.getBrokerAccountId(api);
+            String brokerAccId = bankApi.getBrokerAccountId();
             BigDecimal balance = new BigDecimal(params[0]);
-            bankApi.setAccountBalance((SandboxOpenApi) api, brokerAccId, balance);
+            bankApi.setAccountBalance(brokerAccId, balance);
             sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), userName,
                     "Баланс пополнен");
         } catch (Exception e){
