@@ -34,6 +34,6 @@ public class StockSubscribe extends ServiceCommand {
             Listener.setChatId(chat.getId());
         }
         //var listener = new CandleApiSubscriber(logger, Executors.newSingleThreadExecutor(), absSender, chat.getId());
-        bankApi.stockSubscribe(stockFigi, Listener);
+        //bankApi.stockSubscribe(stockFigi, Listener);
     }
 }

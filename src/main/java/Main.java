@@ -15,13 +15,4 @@ public class Main {
             e.printStackTrace();
         }
     }
-    /*public static void main(String[] args) {
-        try {
-            TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-            botsApi.registerBot(new ComBot());
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-    }
-}*/
 }

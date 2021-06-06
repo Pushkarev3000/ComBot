@@ -40,7 +40,7 @@ public class StockSubscribePDV extends ServiceCommand {
         BankApi bankApi = new BankApi();
         var api = bankApi.connect();
         String stockFigi = params[0];
-        bankApi.stockSubscribe(stockFigi, Listener);
+        //bankApi.stockSubscribe(stockFigi, Listener);
         String messageText = String.format("Подписан на %s", stockFigi);
         sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), userName, messageText);
     }

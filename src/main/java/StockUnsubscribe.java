@@ -22,7 +22,7 @@ public class StockUnsubscribe extends ServiceCommand {
         var api = bankApi.connect();
         String stockFigi = params[0];
 
-        bankApi.stockUnsubscribe(stockFigi);
+        //bankApi.stockUnsubscribe(stockFigi);
         String messageText = String.format("Отписан от %s", stockFigi);
         sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), userName, messageText);
     }

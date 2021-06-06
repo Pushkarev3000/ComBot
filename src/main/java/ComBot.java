@@ -21,13 +21,12 @@ public final class ComBot extends TelegramLongPollingCommandBot {
         //регистрируем команды
         register(new StartCommand("start", "Старт"));
         register(new HelpCommand("help", "Помощь"));
-        register(new RegisterBrokerAccount("register","Регистраия тестового аккаунта"));
         register(new DepositBalance("deposit","Пополнить баланс"));
         register(new ShowBalance("show_balance","Показать баланс аккаунта"));
         register(new StockPrice("price","Цена акции"));
         register(new ShowStock("stock","Информация по акции"));
         register(new BuyStock("buy","Покупка акций"));
-        register(new SellStock("sell","Покупка акций"));
+        register(new SellStock("sell","Продажа акций"));
         register(new ShowPortfolio("show_portfolio","Показать портфель"));
     }
 

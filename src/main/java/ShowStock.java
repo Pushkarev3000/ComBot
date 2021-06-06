@@ -15,18 +15,18 @@ public class ShowStock extends ServiceCommand {
     @SneakyThrows
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] params) {
-        String userName = user.getUserName();
-        BankApi bankApi = new BankApi();
-        var api = bankApi.connect();
-        String stockName = params[0];
-        var stock = bankApi.streamStocks(stockName);
-        String stockOut = stock.toString();
-        //sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), userName, stockOut);
-        if (stockOut.equals("Optional.empty")) {
-            stockOut = "Простите, я не понимаю Вас. Возможно, Вам поможет /help";
+        try {
+            String userName = user.getUserName();
+            BankApi bankApi = new BankApi();
+            var api = bankApi.connect();
+            String stockName = params[0];
+            var stock = bankApi.streamStocks(stockName);
+            String stockOut = stock.toString();
             sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), userName, stockOut);
-        } else {
-            sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), userName, stockOut);
+        } catch (Exception e) {
+            String userName = user.getUserName();
+            String mistake = "Простите, я не понимаю Вас. Возможно, Вам поможет /help";
+            sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), userName, mistake);
         }
 
     }
