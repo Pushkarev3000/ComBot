@@ -25,30 +25,3 @@
         return answer;
     }
 }
-        /**
-         * Создание настроек из полученного пользователем сообщения
-         * @param text текст сообщения
-         * @throws IllegalArgumentException пробрасывается, если сообщение пользователя не соответствует формату
-         */
-       /* private Settings createSettings(String text) throws IllegalArgumentException {
-            //отсекаем файлы, стикеры, гифки и прочий мусор
-            if (text == null) {
-                throw new IllegalArgumentException("Сообщение не является текстом");
-            }
-            //создаём из сообщения пользователя 3 числа-настройки (min, max, listCount) либо пробрасываем исключение о несоответствии сообщения требуемому формату
-            return new Settings(min, max, listCount);
-        }*/
-
-        /**
-         * Добавление настроек пользователя в мапу, чтобы потом их использовать для этого пользователя при генерации файла
-         * Если настройки совпадают с дефолтными, они не сохраняются, чтобы впустую не раздувать мапу
-         * @param chatId id чата
-         * @param settings настройки
-         */
-        /*private void saveUserSettings(Long chatId, Settings settings) {
-            if (!settings.equals(Settings.getDefaultSettings())) {
-                ComBot.getUserSettings().put(chatId, settings);
-            } else {
-                ComBot.getUserSettings().remove(chatId);
-            }
-        }*/

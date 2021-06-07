@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import ru.tinkoff.invest.openapi.OpenApi;
 import ru.tinkoff.invest.openapi.SandboxOpenApi;
 import ru.tinkoff.invest.openapi.models.Currency;
+import ru.tinkoff.invest.openapi.models.market.Candle;
 import ru.tinkoff.invest.openapi.models.market.CandleInterval;
 import ru.tinkoff.invest.openapi.models.market.Instrument;
 import ru.tinkoff.invest.openapi.models.orders.MarketOrder;
@@ -101,6 +102,14 @@ public class BankApi {
     public void sellStock(String figi, Integer lot) throws ExecutionException, InterruptedException {
         Api.getOrdersContext().placeMarketOrder(figi, new MarketOrder(lot, Operation.Sell),
                 Api.getUserContext().getAccounts().get().accounts.get(0).brokerAccountId).get();
+    }
+
+    public List<Candle> getInstrumentCandles(String figi) {
+        var response = Api.getMarketContext().getMarketCandles(figi,
+                OffsetDateTime.of(LocalDateTime.from(LocalDateTime.now().minusMonths(1)), ZoneOffset.UTC),
+                OffsetDateTime.of(LocalDateTime.from(LocalDateTime.now()), ZoneOffset.UTC),
+                CandleInterval.DAY).join();
+        return response.get().candles;
     }
 
 }
