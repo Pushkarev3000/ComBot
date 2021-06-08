@@ -28,6 +28,7 @@ public final class ComBot extends TelegramLongPollingCommandBot {
         register(new BuyStock("buy","Покупка акций"));
         register(new SellStock("sell","Продажа акций"));
         register(new ShowPortfolio("show_portfolio","Показать портфель"));
+        register(new StockPricePlot("plot", ""));
     }
 
     @Override
