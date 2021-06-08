@@ -6,16 +6,21 @@ import ru.tinkoff.invest.openapi.SandboxOpenApi;
 import ru.tinkoff.invest.openapi.models.market.CandleInterval;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class GivePredict extends ServiceCommand {
+public class LinearPredictionCommand extends ServiceCommand {
 
-    public GivePredict(String identifier, String description) {
+    private static ZoneOffset DefaultZoneOffset = ZoneOffset.ofHoursMinutes(6, 30);
+    private static SimpleDateFormat ParamDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+
+    public LinearPredictionCommand(String identifier, String description) {
         super(identifier, description);
     }
 
@@ -23,21 +28,21 @@ public class GivePredict extends ServiceCommand {
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] params) {
         String mistake = new String();
+        String userName = user.getUserName();
         try {
-            String userName = user.getUserName();
             BankApi bankApi = new BankApi();
-            var api = bankApi.connect();
+            bankApi.connect();
+
             String figi = params[0];
-            OffsetDateTime dateTime4 = OffsetDateTime.of(LocalDateTime.of(2021, 07, 20, 12, 00),
-                    ZoneOffset.ofHoursMinutes(6, 30));
-            List<OffsetDateTime> dates = new ArrayList<OffsetDateTime>();
-            dates.add(dateTime4);
-            var prediction = Prediction.getsCandlesPrediction(bankApi.getInstrumentCandles(figi), dates);
-            var predictionB = prediction[0];
-            String predictOutPut = Double.toString(predictionB);
+            String predictionDateStr = params[1];
+            var predictionDate = ParamDateFormat.parse(predictionDateStr);
+            var predictionOffsetDateTime = predictionDate.toInstant().atOffset(DefaultZoneOffset);
+
+            List<OffsetDateTime> dates = Arrays.asList(predictionOffsetDateTime);
+            var prediction = Prediction.getCandlesPrediction(bankApi.getInstrumentCandles(figi), dates)[0];
+            String predictOutPut = Double.toString(prediction);
             sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), userName,predictOutPut);
-        } catch (Exception e){
-            String userName = user.getUserName();
+        } catch (Exception e) {
             mistake = "Простите, я не понимаю Вас. Возможно, Вам поможет /help";
             sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), userName, mistake);
             System.out.println(e.getStackTrace());

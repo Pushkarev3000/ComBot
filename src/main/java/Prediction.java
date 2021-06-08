@@ -11,7 +11,7 @@ import java.util.List;
 
 public class Prediction {
 
-    public static double[] getsCandlesPrediction(List<Candle> candles, List<OffsetDateTime> futureDates){
+    public static double[] getCandlesPrediction(List<Candle> candles, List<OffsetDateTime> futureDates){
         List<Double> x1 = new ArrayList<Double>();
         List<Double> x2 = new ArrayList<Double>();
         List<Double> y1 = new ArrayList<Double>();
