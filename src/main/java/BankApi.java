@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 
+import org.reactivestreams.Subscriber;
 import ru.tinkoff.invest.openapi.OpenApi;
 import ru.tinkoff.invest.openapi.SandboxOpenApi;
 import ru.tinkoff.invest.openapi.models.Currency;
@@ -21,6 +22,7 @@ import ru.tinkoff.invest.openapi.models.orders.MarketOrder;
 import ru.tinkoff.invest.openapi.models.orders.Operation;
 import ru.tinkoff.invest.openapi.models.portfolio.Portfolio;
 import ru.tinkoff.invest.openapi.models.sandbox.CurrencyBalance;
+import ru.tinkoff.invest.openapi.models.streaming.StreamingRequest;
 import ru.tinkoff.invest.openapi.models.user.BrokerAccountType;
 import ru.tinkoff.invest.openapi.okhttp.OkHttpOpenApiFactory;
 
@@ -110,6 +112,15 @@ public class BankApi {
                 OffsetDateTime.of(LocalDateTime.from(LocalDateTime.now()), ZoneOffset.UTC),
                 CandleInterval.DAY).join();
         return response.get().candles;
+    }
+    public void stockSubscribe(String figi, Subscriber listener) {
+        var streamingContext = Api.getStreamingContext();
+        streamingContext.getEventPublisher().subscribe(listener);
+        streamingContext.sendRequest(StreamingRequest.subscribeCandle(figi, CandleInterval.ONE_MIN));
+    }
+
+    public void stockUnsubscribe(String figi) {
+        Api.getStreamingContext().sendRequest(StreamingRequest.unsubscribeCandle(figi, CandleInterval.ONE_MIN));
     }
 
 }

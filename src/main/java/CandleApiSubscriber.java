@@ -4,7 +4,6 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import org.jetbrains.annotations.NotNull;
-import org.reactivestreams.example.unicast.AsyncSubscriber;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.bots.AbsSender;
