@@ -108,20 +108,26 @@ public class BankApi {
 
     public List<Candle> getInstrumentCandles(String figi) {
         var response = Api.getMarketContext().getMarketCandles(figi,
-                OffsetDateTime.of(LocalDateTime.from(LocalDateTime.now().minusMonths(1)), ZoneOffset.UTC),
+                OffsetDateTime.of(LocalDateTime.from(LocalDateTime.now().minusMonths(6)), ZoneOffset.UTC),
                 OffsetDateTime.of(LocalDateTime.from(LocalDateTime.now()), ZoneOffset.UTC),
                 CandleInterval.DAY).join();
         return response.get().candles;
     }
-    public void stockSubscribe(String figi, Subscriber listener) {
+
+    public void stockSubscribe(String figi, CandleApiSubscriber listener) {
         var streamingContext = Api.getStreamingContext();
-        streamingContext.getEventPublisher().subscribe(listener);
+        /*if (!listener.getSubscribed()) {
+            streamingContext.getEventPublisher().subscribe((Subscriber)listener);
+            listener.setSubscribed(true);
+        }*/
+        streamingContext.getEventPublisher().subscribe((Subscriber)listener);
         streamingContext.sendRequest(StreamingRequest.subscribeCandle(figi, CandleInterval.ONE_MIN));
     }
 
     public void stockUnsubscribe(String figi) {
         Api.getStreamingContext().sendRequest(StreamingRequest.unsubscribeCandle(figi, CandleInterval.ONE_MIN));
     }
+
 
 }
 

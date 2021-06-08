@@ -16,6 +16,8 @@ class CandleApiSubscriber extends AsyncSubscriber<StreamingEvent.Candle> {
     private AbsSender chatSender;
     private Long chatId;
 
+    private boolean isSubscribed;
+
     /*CandleApiSubscriber(@NotNull final Logger logger, @NotNull final Executor executor) {
         super(executor);
         this.logger = logger;
@@ -32,12 +34,18 @@ class CandleApiSubscriber extends AsyncSubscriber<StreamingEvent.Candle> {
         return this.chatSender;
     }
 
+    public boolean getSubscribed() { return this.isSubscribed; }
+
     public void setSender(AbsSender sender) {
         this.chatSender = sender;
     }
 
     public void setChatId(Long chatId) {
         this.chatId = chatId;
+    }
+
+    public void setSubscribed(boolean isSubscribed) {
+        this.isSubscribed = isSubscribed;
     }
 
     @Override
