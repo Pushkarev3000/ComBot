@@ -31,6 +31,7 @@ public class HelpCommand extends ServiceCommand {
                         "/show_balance - показать баланс\n"+
                         "/buy + *figi* + *штук* - купить акции\n"+
                         "/sell + *figi* + *штук* - продать акции\n"+
+                        "/linear_prediction + *figi* + *dd-MM-yyyy* - линейно предсказать значение на дату\n" +
                         "/help - помощь\n\n" +
                         "Желаю удачи\uD83D\uDE42");
         logger.debug(String.format("Пользователь %s. Завершено выполнение команды %s", userName,
