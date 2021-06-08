@@ -17,10 +17,10 @@ class CandleApiSubscriber extends AsyncSubscriber<StreamingEvent.Candle> {
     private AbsSender chatSender;
     private Long chatId;
 
-    CandleApiSubscriber(@NotNull final Logger logger, @NotNull final Executor executor) {
+    /*CandleApiSubscriber(@NotNull final Logger logger, @NotNull final Executor executor) {
         super(executor);
         this.logger = logger;
-    }
+    }*/
 
     CandleApiSubscriber(@NotNull final Logger logger, @NotNull final Executor executor, AbsSender absSender, Long chatId) {
         super(executor);

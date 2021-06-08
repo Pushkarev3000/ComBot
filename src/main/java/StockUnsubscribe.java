@@ -1,22 +1,19 @@
 import lombok.SneakyThrows;
-import org.reactivestreams.Subscriber;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
-import ru.tinkoff.invest.openapi.models.market.Candle;
 
 import java.util.concurrent.Executors;
-import java.util.concurrent.Flow;
 import java.util.logging.Logger;
 
-public class StockSubscribe extends ServiceCommand {
+public class StockUnsubscribe extends ServiceCommand {
 
     static Logger logger = Logger.getLogger(StockSubscribe.class.toString());
     static CandleApiSubscriber Listener;
     static AbsSender chatSender;
     static Long chatId;
 
-    public StockSubscribe(String identifier, String description) {
+    public StockUnsubscribe(String identifier, String description) {
         super(identifier, description);
         if (Listener == null) {
             Listener = new CandleApiSubscriber(logger, Executors.newSingleThreadExecutor(),chatSender,chatId);
@@ -36,6 +33,8 @@ public class StockSubscribe extends ServiceCommand {
             Listener.setChatId(chat.getId());
         }
         //var listener = new CandleApiSubscriber(logger, Executors.newSingleThreadExecutor(), absSender, chat.getId());
-        bankApi.stockSubscribe(stockFigi, Listener);
+        bankApi.stockUnsubscribe(stockFigi);
+        sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), userName,
+                "Отписались");
     }
 }
