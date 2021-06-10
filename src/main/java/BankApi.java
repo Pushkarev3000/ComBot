@@ -108,7 +108,7 @@ public class BankApi {
 
     public List<Candle> getInstrumentCandles(String figi) {
         var response = Api.getMarketContext().getMarketCandles(figi,
-                OffsetDateTime.of(LocalDateTime.from(LocalDateTime.now().minusMonths(6)), ZoneOffset.UTC),
+                OffsetDateTime.of(LocalDateTime.from(LocalDateTime.now().minusMonths(1)), ZoneOffset.UTC),
                 OffsetDateTime.of(LocalDateTime.from(LocalDateTime.now()), ZoneOffset.UTC),
                 CandleInterval.DAY).join();
         return response.get().candles;
@@ -127,8 +127,6 @@ public class BankApi {
     public void stockUnsubscribe(String figi) {
         Api.getStreamingContext().sendRequest(StreamingRequest.unsubscribeCandle(figi, CandleInterval.ONE_MIN));
     }
-
-
 }
 
 

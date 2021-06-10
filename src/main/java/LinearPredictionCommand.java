@@ -32,16 +32,19 @@ public class LinearPredictionCommand extends ServiceCommand {
         try {
             BankApi bankApi = new BankApi();
             bankApi.connect();
-
+            List<OffsetDateTime> dates = new ArrayList<>();
             String figi = params[0];
-            String predictionDateStr = params[1];
+            for (int i = 1; i<params.length; i++){
+            String predictionDateStr = params[i];
             var predictionDate = ParamDateFormat.parse(predictionDateStr);
             var predictionOffsetDateTime = predictionDate.toInstant().atOffset(DefaultZoneOffset);
-
-            List<OffsetDateTime> dates = Arrays.asList(predictionOffsetDateTime);
-            var prediction = Prediction.getCandlesPrediction(bankApi.getInstrumentCandles(figi), dates)[0];
-            String predictOutPut = Double.toString(prediction);
-            sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), userName,predictOutPut);
+                assert false;
+                dates.add(i-1, predictionOffsetDateTime);
+            }
+            var prediction = Prediction.getCandlesPrediction(bankApi.getInstrumentCandles(figi), dates);
+            String predictOutTwo = Arrays.toString(prediction);
+            //String predictOutPut = Double.toString(prediction);
+            sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), userName,predictOutTwo);
         } catch (Exception e) {
             mistake = "Простите, я не понимаю Вас. Возможно, Вам поможет /help";
             sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), userName, mistake);
