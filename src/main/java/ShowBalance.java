@@ -9,11 +9,9 @@ import java.math.BigDecimal;
 import java.util.concurrent.ExecutionException;
 
 public class ShowBalance extends ServiceCommand {
-
     public ShowBalance(String identifier, String description) {
         super(identifier, description);
     }
-
     @SneakyThrows
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] params) {
@@ -31,5 +29,4 @@ public class ShowBalance extends ServiceCommand {
             sendAnswer(absSender, chat.getId(), this.getCommandIdentifier(), userName, mistake);
         }
     }
-
 }

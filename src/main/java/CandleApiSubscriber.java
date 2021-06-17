@@ -1,4 +1,5 @@
 import java.sql.Timestamp;
+import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -16,6 +17,9 @@ class CandleApiSubscriber extends AsyncSubscriber<StreamingEvent.Candle> {
     private AbsSender chatSender;
     private Long chatId;
 
+    private Long intervalMs;
+    private Date lastUpdateTime;
+
     private boolean isSubscribed;
 
     /*CandleApiSubscriber(@NotNull final Logger logger, @NotNull final Executor executor) {
@@ -23,18 +27,22 @@ class CandleApiSubscriber extends AsyncSubscriber<StreamingEvent.Candle> {
         this.logger = logger;
     }*/
 
-    CandleApiSubscriber(@NotNull final Logger logger, @NotNull final Executor executor, AbsSender absSender, Long chatId) {
+    CandleApiSubscriber(@NotNull final Logger logger, @NotNull final Executor executor, AbsSender absSender, Long chatId, Long intervalMs) {
         super(executor);
         this.logger = logger;
         this.chatSender = absSender;
         this.chatId = chatId;
+        this.intervalMs = intervalMs;
+        this.isSubscribed = true;
     }
 
     public AbsSender getSender() {
         return this.chatSender;
     }
 
-    public boolean getSubscribed() { return this.isSubscribed; }
+    public boolean getSubscribed() {
+        return this.isSubscribed;
+    }
 
     public void setSender(AbsSender sender) {
         this.chatSender = sender;
@@ -52,11 +60,21 @@ class CandleApiSubscriber extends AsyncSubscriber<StreamingEvent.Candle> {
     protected boolean whenNext(final StreamingEvent.Candle event) {
         logger.info("Пришло новое событие из Streaming API\n" + event);
 
+        if (lastUpdateTime != null) {
+            var currentTime = new Date();
+            var diffTimeMs = currentTime.getTime() - lastUpdateTime.getTime();
+            if (diffTimeMs < intervalMs) {
+                return true;
+            }
+        }
+
         if (this.chatSender == null) {
             return false;
         }
         String messageText = String.format("UPDATE\n%s - %s", event.getFigi(), event.getHighestPrice());
         sendMessage(this.chatSender, this.chatId, messageText);
+
+        lastUpdateTime = new Date();
 
         return true;
     }

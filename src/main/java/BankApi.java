@@ -121,11 +121,11 @@ public class BankApi {
             listener.setSubscribed(true);
         }*/
         streamingContext.getEventPublisher().subscribe((Subscriber)listener);
-        streamingContext.sendRequest(StreamingRequest.subscribeCandle(figi, CandleInterval.ONE_MIN));
+        streamingContext.sendRequest(StreamingRequest.subscribeCandle(figi, CandleInterval.FIVE_MIN));
     }
 
     public void stockUnsubscribe(String figi) {
-        Api.getStreamingContext().sendRequest(StreamingRequest.unsubscribeCandle(figi, CandleInterval.ONE_MIN));
+        Api.getStreamingContext().sendRequest(StreamingRequest.unsubscribeCandle(figi, CandleInterval.DAY));
     }
 }
 
